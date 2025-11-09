@@ -17,7 +17,7 @@ test("GET /api/v1/status should return dependencies status", async () => {
 
   const databaseVersion = data.dependencies.database.version;
   expect(databaseVersion).toBeDefined();
-  expect(databaseVersion).toEqual(expect.stringMatching(/^\d{2}\.\d$/));
+  expect(databaseVersion).toEqual("16.0");
 
   const databaseMaxConnections = data.dependencies.database.max_connections;
   expect(databaseMaxConnections).toBeDefined();
