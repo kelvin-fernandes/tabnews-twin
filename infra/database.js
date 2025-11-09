@@ -8,7 +8,7 @@ async function connect() {
       database: process.env.POSTGRES_DB,
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
-      ssl: { rejectUnauthorized: false },
+      ssl: process.env.NODE_ENV === 'production',
     });
     await client.connect();
     return client;
