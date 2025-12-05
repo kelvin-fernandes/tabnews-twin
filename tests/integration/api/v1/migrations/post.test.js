@@ -1,5 +1,4 @@
 import database from "infra/database.js";
-import orchestrator from "tests/orchestrator.js"
 
 let response;
 let responseData;
@@ -10,7 +9,6 @@ async function migrationsCount() {
 }
 
 beforeAll(async () => {
-  await orchestrator.waitForAllServices();
   await database.query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
   response = await fetch("http://localhost:3000/api/v1/migrations", { method: "POST" });
   responseData = await response.json();
