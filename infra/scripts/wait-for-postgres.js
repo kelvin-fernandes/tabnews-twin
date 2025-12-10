@@ -1,7 +1,10 @@
-const { exec } = require("node:child_process")
+const { exec } = require("node:child_process");
 
 function isPostgresReady() {
-  exec("docker exec postgres-twin-dev pg_isready --host localhost", handleReturn);
+  exec(
+    "docker exec postgres-twin-dev pg_isready --host localhost",
+    handleReturn,
+  );
 
   function handleReturn(error, stdout, stderr) {
     if (error) {
@@ -19,4 +22,3 @@ function isPostgresReady() {
 
 process.stdout.write("\n🔴 Waiting for Postgres to be ready");
 isPostgresReady();
-
