@@ -5,7 +5,7 @@ async function waitForAllServices() {
 
   async function waitForWebServer() {
     await retry(async () => {
-      const response = await fetch("http://localhost:3000/api/v1/statuss")
+      const response = await fetch("http://localhost:3000/api/v1/status")
 
       if (!response.ok) {
         throw new Error("Web server not ready")
