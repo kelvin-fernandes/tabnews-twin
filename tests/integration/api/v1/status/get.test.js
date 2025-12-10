@@ -14,7 +14,7 @@ test("GET /api/v1/status should return dependencies status", async () => {
   expect(updatedAt).toEqual(parsedUpdatedAt)
 
   const databaseStatus = data.dependencies.database.status;
-  expect(databaseStatus).toEqual("healthyyy");
+  expect(databaseStatus).toEqual("healthy");
 
   const databaseVersion = data.dependencies.database.version;
   expect(databaseVersion).toBeDefined();
