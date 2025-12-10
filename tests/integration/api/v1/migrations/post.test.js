@@ -10,7 +10,9 @@ async function migrationsCount() {
 
 beforeAll(async () => {
   await database.query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
-  response = await fetch("http://localhost:3000/api/v1/migrations", { method: "POST" });
+  response = await fetch("http://localhost:3000/api/v1/migrations", {
+    method: "POST",
+  });
   responseData = await response.json();
   migrationsResponse = await migrationsCount();
 });
@@ -32,7 +34,9 @@ test("POST /api/v1/migrations should return array with length equals to number o
 });
 
 test("POST /api/v1/migrations should return empty array when run again", async () => {
-  response = await fetch("http://localhost:3000/api/v1/migrations", { method: "POST" });
+  response = await fetch("http://localhost:3000/api/v1/migrations", {
+    method: "POST",
+  });
   responseData = await response.json();
   expect(responseData.length).toBe(0);
-})
+});
