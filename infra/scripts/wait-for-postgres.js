@@ -6,7 +6,7 @@ function isPostgresReady() {
     handleReturn,
   );
 
-  function handleReturn(error, stdout, stderr) {
+  function handleReturn(error, stdout) {
     if (error) {
       process.stdout.write(".");
       setTimeout(isPostgresReady, 100);
