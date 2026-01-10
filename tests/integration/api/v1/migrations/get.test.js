@@ -9,14 +9,21 @@ beforeAll(async () => {
   responseData = await response.json();
 });
 
-test("GET /api/v1/migrations should return 200", async () => {
-  expect(response.status).toBe(200);
-});
+describe("GET /api/v1/migrations", () => {
+  describe("anonymous user", () => {
+    describe("retrieving pending migrations", () => {
 
-test("GET /api/v1/migrations should return array", async () => {
-  expect(Array.isArray(responseData)).toBe(true);
-});
+      test("should return 200", async () => {
+        expect(response.status).toBe(200);
+      });
 
-test("GET /api/v1/migrations should return array not empty", async () => {
-  expect(responseData.length).toBeGreaterThan(0);
+      test("should return array", async () => {
+        expect(Array.isArray(responseData)).toBe(true);
+      });
+
+      test("should return array not empty", async () => {
+        expect(responseData.length).toBeGreaterThan(0);
+      });
+    });
+  });
 });
