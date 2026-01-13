@@ -12,7 +12,6 @@ beforeAll(async () => {
 describe("GET /api/v1/migrations", () => {
   describe("anonymous user", () => {
     describe("retrieving pending migrations", () => {
-
       test("should return 200", async () => {
         expect(response.status).toBe(200);
       });
