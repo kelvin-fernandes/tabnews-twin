@@ -1,4 +1,5 @@
 import database from "infra/database.js";
+import orchestrator from "tests/orchestrator";
 
 let response;
 let responseData;
@@ -9,7 +10,7 @@ async function migrationsCount() {
 }
 
 beforeAll(async () => {
-  await database.query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
+  await orchestrator.clearDatabase();
   response = await fetch("http://localhost:3000/api/v1/migrations", {
     method: "POST",
   });
@@ -17,26 +18,32 @@ beforeAll(async () => {
   migrationsResponse = await migrationsCount();
 });
 
-test("POST /api/v1/migrations should return 200", async () => {
-  expect(response.status).toBe(201);
-});
+describe("POST /api/v1/migrations", () => {
+  describe("anonymous user", () => {
+    describe("running pending migrations", () => {
+      test("should return 201", async () => {
+        expect(response.status).toBe(201);
+      });
 
-test("POST /api/v1/migrations should return array", async () => {
-  expect(Array.isArray(responseData)).toBe(true);
-});
+      test("should return array", async () => {
+        expect(Array.isArray(responseData)).toBe(true);
+      });
 
-test("POST /api/v1/migrations should return array not empty", async () => {
-  expect(responseData.length).toBeGreaterThan(0);
-});
+      test("should return array not empty", async () => {
+        expect(responseData.length).toBeGreaterThan(0);
+      });
 
-test("POST /api/v1/migrations should return array with length equals to number of migrations", async () => {
-  expect(responseData.length).toBe(migrationsResponse.rows[0].count);
-});
+      test("should return array with length equals to number of migrations", async () => {
+        expect(responseData.length).toBe(migrationsResponse.rows[0].count);
+      });
 
-test("POST /api/v1/migrations should return empty array when run again", async () => {
-  response = await fetch("http://localhost:3000/api/v1/migrations", {
-    method: "POST",
+      test("should return empty array when run again", async () => {
+        response = await fetch("http://localhost:3000/api/v1/migrations", {
+          method: "POST",
+        });
+        responseData = await response.json();
+        expect(responseData.length).toBe(0);
+      });
+    });
   });
-  responseData = await response.json();
-  expect(responseData.length).toBe(0);
 });
