@@ -38,7 +38,7 @@ async function getDatabaseInfo() {
     console.error("Error fetching database info:", error);
     throw error;
   } finally {
-    await client.end();
+    await client?.end();
   }
 }
 
