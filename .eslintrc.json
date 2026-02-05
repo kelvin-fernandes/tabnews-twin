@@ -4,11 +4,5 @@
     "eslint:recommended",
     "plugin:jest/recommended",
     "prettier"
-  ],
-  "import/no-anonymous-default-export": [
-    "error",
-    {
-      "allowObject": false
-    }
   ]
 }
