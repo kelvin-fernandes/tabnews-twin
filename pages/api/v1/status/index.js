@@ -20,9 +20,7 @@ async function getHandler(request, response) {
         max_connections: parseInt(databaseInfo.maxConnections),
         opened_connections: parseInt(databaseInfo.openedConnections),
       },
-    });
-  } catch (error) {
-    const errorResponse = new InternalServerError({ cause: error });
-    response.status(500).json(errorResponse);
-  }
+    }
+  });
 }
+
