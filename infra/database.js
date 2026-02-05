@@ -1,5 +1,5 @@
 import { Client } from "pg";
-import { ServiceError } from "./errors.js"
+import { ServiceError } from "./errors.js";
 
 async function connect() {
   try {
@@ -14,7 +14,10 @@ async function connect() {
     await client.connect();
     return client;
   } catch (error) {
-    const serviceError = new ServiceError({ cause: error, message: "Failed to connect to the database." });
+    const serviceError = new ServiceError({
+      cause: error,
+      message: "Failed to connect to the database.",
+    });
     throw serviceError;
   }
 }
@@ -36,7 +39,10 @@ async function getDatabaseInfo() {
 
     return { dbVersion, maxConnections, openedConnections };
   } catch (error) {
-    const serviceError = new ServiceError({ cause: error, message: "Failed to retrieve database info." });
+    const serviceError = new ServiceError({
+      cause: error,
+      message: "Failed to retrieve database info.",
+    });
     throw serviceError;
   } finally {
     await client?.end();
@@ -49,7 +55,10 @@ async function query(text, params) {
   try {
     return await client.query(text, params);
   } catch (error) {
-    const serviceError = new ServiceError({ cause: error, message: "Failed to execute database query." });
+    const serviceError = new ServiceError({
+      cause: error,
+      message: "Failed to execute database query.",
+    });
     throw serviceError;
   } finally {
     await client.end();

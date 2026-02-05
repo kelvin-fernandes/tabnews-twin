@@ -1,6 +1,6 @@
 import { createRouter } from "next-connect";
 import database from "/infra/database.js";
-import controller from "infra/controller.js"
+import controller from "infra/controller.js";
 
 const router = createRouter();
 
@@ -20,7 +20,6 @@ async function getHandler(request, response) {
         max_connections: parseInt(databaseInfo.maxConnections),
         opened_connections: parseInt(databaseInfo.openedConnections),
       },
-    }
+    },
   });
 }
-

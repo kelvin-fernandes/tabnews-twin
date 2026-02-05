@@ -2,7 +2,9 @@ let response;
 let responseData;
 
 beforeAll(async () => {
-  response = await fetch("http://localhost:3000/api/v1/status", { method: "POST" });
+  response = await fetch("http://localhost:3000/api/v1/status", {
+    method: "POST",
+  });
   responseData = await response.json();
 });
 
@@ -18,7 +20,7 @@ describe("POST /api/v1/status", () => {
           name: "MethodNotAllowed",
           message: "Method not allowed for this endpoint.",
           action: "Call a valid endpoint with a supported HTTP method.",
-          status_code: 405
+          status_code: 405,
         });
       });
     });
