@@ -52,4 +52,22 @@ class ServiceError extends Error {
   }
 }
 
-export { InternalServerError, MethodNotAllowedError, ServiceError };
+class ValidationError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "Validation error.", { cause });
+    this.name = "ValidationError";
+    this.action = action || "Check the error message and fix the input data accordingly.";
+    this.statusCode = 400;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      status_code: this.statusCode,
+    };
+  }
+}
+
+export { InternalServerError, MethodNotAllowedError, ServiceError, ValidationError };
