@@ -39,9 +39,9 @@ describe("POST /api/v1/users", () => {
       test("should return the expected response data", async () => {
         expect(responseData).toEqual({
           id: responseData.id,
-          username: 'kf1',
-          email: 'kf@pm.me',
-          password: 'pass',
+          username: "kf1",
+          email: "kf@pm.me",
+          password: "pass",
           created_at: responseData.created_at,
           updated_at: responseData.updated_at,
         });
@@ -59,11 +59,19 @@ describe("POST /api/v1/users", () => {
 
     describe("with duplicated email", () => {
       test("should return 400", async () => {
-        response1 = await sendPostRequest({ username: "dup email1", email: "dup_email@email.com", password: "dup_email123" });
+        response1 = await sendPostRequest({
+          username: "dup email1",
+          email: "dup_email@email.com",
+          password: "dup_email123",
+        });
 
         expect(response1.status).toBe(201);
 
-        response2 = await sendPostRequest({ username: "dup email2", email: "dup_email@email.com", password: "dup_email234" });
+        response2 = await sendPostRequest({
+          username: "dup email2",
+          email: "dup_email@email.com",
+          password: "dup_email234",
+        });
 
         expect(response2.status).toBe(400);
       });
@@ -75,17 +83,25 @@ describe("POST /api/v1/users", () => {
           message: "Email already exists",
           action: "Use a different email address.",
           status_code: 400,
-        })
+        });
       });
     });
 
     describe("with duplicated username", () => {
       test("should return 400", async () => {
-        response1 = await sendPostRequest({ username: "dup username1", email: "username1@email.com", password: "dup_email123" });
+        response1 = await sendPostRequest({
+          username: "dup username1",
+          email: "username1@email.com",
+          password: "dup_email123",
+        });
 
         expect(response1.status).toBe(201);
 
-        response2 = await sendPostRequest({ username: "dup username1", email: "username2@email.com", password: "dup_email234" });
+        response2 = await sendPostRequest({
+          username: "dup username1",
+          email: "username2@email.com",
+          password: "dup_email234",
+        });
 
         expect(response2.status).toBe(400);
       });
@@ -97,7 +113,7 @@ describe("POST /api/v1/users", () => {
           message: "Username already exists",
           action: "Use a different username.",
           status_code: 400,
-        })
+        });
       });
     });
   });

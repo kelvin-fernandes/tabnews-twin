@@ -39,7 +39,7 @@ async function runMigrations({ dryRun = true }) {
     const migratedMigrations = await migrationRunner({
       dir: resolve("infra", "migrations"),
       direction: "up",
-      log: () => { },
+      log: () => {},
       migrationsTable: "pgmigrations",
       dbClient,
       dryRun,

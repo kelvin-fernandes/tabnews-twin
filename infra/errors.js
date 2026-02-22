@@ -56,7 +56,8 @@ class ValidationError extends Error {
   constructor({ cause, message, action }) {
     super(message || "Validation error.", { cause });
     this.name = "ValidationError";
-    this.action = action || "Check the error message and fix the input data accordingly.";
+    this.action =
+      action || "Check the error message and fix the input data accordingly.";
     this.statusCode = 400;
   }
 
@@ -88,4 +89,10 @@ class NotFoundError extends Error {
   }
 }
 
-export { InternalServerError, MethodNotAllowedError, ServiceError, ValidationError, NotFoundError };
+export {
+  InternalServerError,
+  MethodNotAllowedError,
+  ServiceError,
+  ValidationError,
+  NotFoundError,
+};

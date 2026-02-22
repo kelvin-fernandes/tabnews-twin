@@ -1,4 +1,9 @@
-import { MethodNotAllowedError, InternalServerError, ValidationError, NotFoundError } from "infra/errors.js";
+import {
+  MethodNotAllowedError,
+  InternalServerError,
+  ValidationError,
+  NotFoundError,
+} from "infra/errors.js";
 
 function onNoMatchHandler(request, response) {
   const errorResponse = new MethodNotAllowedError();

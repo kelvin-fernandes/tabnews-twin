@@ -52,8 +52,7 @@ describe("GET /api/v1/users/[username]", () => {
         expect(getResponse1Data).toEqual({
           id: expect.any(String),
           username: "KF1",
-          email: "kf@pm.me"
-          ,
+          email: "kf@pm.me",
         });
       });
     });
@@ -67,8 +66,7 @@ describe("GET /api/v1/users/[username]", () => {
         expect(getResponse2Data).toEqual({
           id: expect.any(String),
           username: "KF1",
-          email: "kf@pm.me"
-          ,
+          email: "kf@pm.me",
         });
       });
     });
@@ -84,7 +82,7 @@ describe("GET /api/v1/users/[username]", () => {
           message: "User not found",
           action: "Check if the username is correct.",
           status_code: 404,
-        })
+        });
       });
     });
   });

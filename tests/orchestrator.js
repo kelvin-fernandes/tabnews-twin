@@ -30,6 +30,10 @@ async function runPendingMigrations() {
   await migrator.runPendingMigrations();
 }
 
-const orchestrator = { waitForAllServices, clearDatabase, runPendingMigrations };
+const orchestrator = {
+  waitForAllServices,
+  clearDatabase,
+  runPendingMigrations,
+};
 
 export default orchestrator;

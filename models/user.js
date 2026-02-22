@@ -51,7 +51,7 @@ async function validateUniqueUsername(username) {
     throw new ValidationError({
       message: "Username already exists",
       action: "Use a different username.",
-    })
+    });
   }
 }
 
