@@ -1,13 +1,16 @@
 import orchestrator from "tests/orchestrator";
+import user from "models/user.js";
+import password from "models/password.js";
 import { version as uuidVersion } from "uuid";
 
 let response;
 let response1;
 let response2;
 let responseData;
-let userInputBody = {
-  username: "kf1",
-  email: "kf@pm.me",
+let userFromDatabase;
+const userInputBody = {
+  username: "postkf1",
+  email: "postkf@pm.me",
   password: "pass",
 };
 
@@ -27,6 +30,7 @@ beforeAll(async () => {
   await orchestrator.runPendingMigrations();
   response = await sendPostRequest(userInputBody);
   responseData = await response.json();
+  userFromDatabase = await user.findOneByUsername(userInputBody.username);
 });
 
 describe("POST /api/v1/users", () => {
@@ -39,9 +43,9 @@ describe("POST /api/v1/users", () => {
       test("should return the expected response data", async () => {
         expect(responseData).toEqual({
           id: responseData.id,
-          username: "kf1",
-          email: "kf@pm.me",
-          password: "pass",
+          username: userInputBody.username,
+          email: userInputBody.email,
+          password: responseData.password,
           created_at: responseData.created_at,
           updated_at: responseData.updated_at,
         });
@@ -54,6 +58,14 @@ describe("POST /api/v1/users", () => {
       test("should return a valid created_at and updated_at dates", async () => {
         expect(Date.parse(responseData.created_at)).not.toBeNaN();
         expect(Date.parse(responseData.updated_at)).not.toBeNaN();
+      });
+
+      test("should return a valid password hash", async () => {
+        const isPasswordValid = await password.compare(
+          userInputBody.password,
+          userFromDatabase.password,
+        );
+        expect(isPasswordValid).toBe(true);
       });
     });
 
@@ -114,6 +126,16 @@ describe("POST /api/v1/users", () => {
           action: "Use a different username.",
           status_code: 400,
         });
+      });
+    });
+
+    describe("with invalid password", () => {
+      test("should return 'false' from password compare", async () => {
+        const isPasswordValid = await password.compare(
+          "invalidpassword",
+          userFromDatabase.password,
+        );
+        expect(isPasswordValid).toBe(false);
       });
     });
   });
