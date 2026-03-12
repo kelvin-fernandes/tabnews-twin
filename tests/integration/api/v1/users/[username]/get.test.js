@@ -55,6 +55,8 @@ describe("GET /api/v1/users/[username]", () => {
           username: userInputBody.username,
           email: userInputBody.email,
           password: getResponse1Data.password,
+          created_at: getResponse1Data.created_at,
+          updated_at: getResponse1Data.updated_at,
         });
       });
     });
@@ -70,6 +72,8 @@ describe("GET /api/v1/users/[username]", () => {
           username: userInputBody.username,
           email: userInputBody.email,
           password: getResponse2Data.password,
+          created_at: getResponse2Data.created_at,
+          updated_at: getResponse2Data.updated_at,
         });
       });
     });
