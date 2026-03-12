@@ -2,13 +2,18 @@ import bcryptjs from "bcryptjs";
 
 async function hash(password) {
   const rounds = process.env.NODE_ENV === "production" ? 14 : 1;
-  const hashedPassword = await bcryptjs.hash((password + getBlackPepper()), rounds);
-  console.debug("Hashed password:", hashedPassword);
+  const hashedPassword = await bcryptjs.hash(
+    password + getBlackPepper(),
+    rounds,
+  );
   return hashedPassword;
 }
 
 async function compare(password, hash) {
-  const isValidPassword = await bcryptjs.compare((password + getBlackPepper()), hash);
+  const isValidPassword = await bcryptjs.compare(
+    password + getBlackPepper(),
+    hash,
+  );
   return isValidPassword;
 }
 
