@@ -2,6 +2,7 @@ import orchestrator from "tests/orchestrator";
 import user from "models/user.js";
 import password from "models/password.js";
 
+let user_with_new_password;
 let patchResponse;
 let patchResponseData;
 let response404;
@@ -10,16 +11,6 @@ let userFromDatabase;
 const patchInputBody = {
   email: "patch_kovit@gmail.com",
 };
-
-async function sendPostRequest(inputBody) {
-  return await fetch("http://localhost:3000/api/v1/users", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(inputBody),
-  });
-}
 
 async function sendPatchRequest(username, body) {
   return await fetch(`http://localhost:3000/api/v1/users/${username}`, {
@@ -58,16 +49,12 @@ describe("PATCH /api/v1/users/[username]", () => {
 
     describe("with duplicated username", () => {
       test("should return 400", async () => {
-        await sendPostRequest({
+        await orchestrator.createUser({
           username: "user1",
-          email: "username1@email.com",
-          password: "random_pass1",
         });
 
-        await sendPostRequest({
+        await orchestrator.createUser({
           username: "user2",
-          email: "username2@email.com",
-          password: "random_pass2",
         });
 
         patchResponse = await sendPatchRequest("user2", {
@@ -90,19 +77,15 @@ describe("PATCH /api/v1/users/[username]", () => {
 
     describe("with duplicated email", () => {
       test("should return 400", async () => {
-        await sendPostRequest({
-          username: "user_with_duplicated_email1",
+        await orchestrator.createUser({
           email: "user_with_duplicated_email1@email.com",
-          password: "random_pass1",
         });
 
-        await sendPostRequest({
-          username: "user_with_duplicated_email2",
+        const user2 = await orchestrator.createUser({
           email: "user_with_duplicated_email2@email.com",
-          password: "random_pass2",
         });
 
-        patchResponse = await sendPatchRequest("user_with_duplicated_email2", {
+        patchResponse = await sendPatchRequest(user2.username, {
           email: "user_with_duplicated_email1@email.com",
         });
 
@@ -122,10 +105,8 @@ describe("PATCH /api/v1/users/[username]", () => {
 
     describe("with unique username", () => {
       test("should return 200", async () => {
-        await sendPostRequest({
+        await orchestrator.createUser({
           username: "unique_user1",
-          email: "unique_user1@email.com",
-          password: "random_pass1",
         });
 
         patchResponse = await sendPatchRequest("unique_user1", {
@@ -157,13 +138,11 @@ describe("PATCH /api/v1/users/[username]", () => {
 
     describe("with unique email", () => {
       test("should return 200", async () => {
-        await sendPostRequest({
-          username: "unique_email1",
+        const user1 = await orchestrator.createUser({
           email: "unique_email1@email.com",
-          password: "random_pass1",
         });
 
-        patchResponse = await sendPatchRequest("unique_email1", {
+        patchResponse = await sendPatchRequest(user1.username, {
           email: "unique_email2@email.com",
         });
 
@@ -192,17 +171,16 @@ describe("PATCH /api/v1/users/[username]", () => {
 
     describe("with new password", () => {
       test("should return 200", async () => {
-        // const postResponse =
-        await sendPostRequest({
-          username: "new_password1",
-          email: "new_password1@email.com",
+        user_with_new_password = await orchestrator.createUser({
           password: "very_unique_password",
         });
-        // const postResponseData = await postResponse.json();
 
-        patchResponse = await sendPatchRequest("new_password1", {
-          password: "the_most_unique_password",
-        });
+        patchResponse = await sendPatchRequest(
+          user_with_new_password.username,
+          {
+            password: "the_most_unique_password",
+          },
+        );
 
         expect(patchResponse.status).toBe(200);
       });
@@ -211,8 +189,8 @@ describe("PATCH /api/v1/users/[username]", () => {
         patchResponseData = await patchResponse.json();
         expect(patchResponseData).toEqual({
           id: patchResponseData.id,
-          username: "new_password1",
-          email: "new_password1@email.com",
+          username: user_with_new_password.username,
+          email: user_with_new_password.email,
           password: patchResponseData.password,
           created_at: patchResponseData.created_at,
           updated_at: patchResponseData.updated_at,
@@ -227,7 +205,9 @@ describe("PATCH /api/v1/users/[username]", () => {
       });
 
       test("should return 'true' from password comparison", async () => {
-        userFromDatabase = await user.findOneByUsername("new_password1");
+        userFromDatabase = await user.findOneByUsername(
+          user_with_new_password.username,
+        );
         const isPasswordValid = await password.compare(
           "the_most_unique_password",
           userFromDatabase.password,
@@ -236,7 +216,9 @@ describe("PATCH /api/v1/users/[username]", () => {
       });
 
       test("should return 'false' from old password comparison", async () => {
-        userFromDatabase = await user.findOneByUsername("new_password1");
+        userFromDatabase = await user.findOneByUsername(
+          user_with_new_password.username,
+        );
         const isPasswordValid = await password.compare(
           "very_unique_password",
           userFromDatabase.password,
