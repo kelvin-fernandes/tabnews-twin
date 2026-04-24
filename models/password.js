@@ -1,4 +1,5 @@
 import bcryptjs from "bcryptjs";
+import { UnauthorizedError } from "infra/errors.js";
 
 async function hash(password) {
   const rounds = process.env.NODE_ENV === "production" ? 14 : 1;
@@ -14,6 +15,14 @@ async function compare(password, hash) {
     password + getBlackPepper(),
     hash,
   );
+
+  if (!isValidPassword) {
+    throw new UnauthorizedError({
+      message: "Invalid email or password",
+      action: "Please check your credentials and try again",
+    });
+  }
+
   return isValidPassword;
 }
 

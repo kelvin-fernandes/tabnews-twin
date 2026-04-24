@@ -12,13 +12,19 @@ async function create(userInputData) {
 }
 
 async function findOneByUsername(username) {
-  const userResult = await runSelectQuery(username);
+  const userResult = await runSelectQueryWithUsername(username);
+
+  return userResult;
+}
+
+async function findOneByEmail(email) {
+  const userResult = await runSelectQueryWithEmail(email);
 
   return userResult;
 }
 
 async function update(username, userInputValues) {
-  const currentUser = await runSelectQuery(username);
+  const currentUser = await runSelectQueryWithUsername(username);
 
   if ("username" in userInputValues) {
     await validateUniqueUsername(userInputValues.username);
@@ -105,7 +111,7 @@ async function runInsertQuery(userInputData) {
   return userResult;
 }
 
-async function runSelectQuery(username) {
+async function runSelectQueryWithUsername(username) {
   const userSelectResult = await database.query({
     text: `SELECT
             *
@@ -123,6 +129,30 @@ async function runSelectQuery(username) {
     throw new NotFoundError({
       message: "User not found",
       action: "Check if the username is correct.",
+    });
+  }
+
+  return userSelectResult.rows[0];
+}
+
+async function runSelectQueryWithEmail(email) {
+  const userSelectResult = await database.query({
+    text: `SELECT
+            *
+          FROM
+            users
+          WHERE
+            LOWER(email) = LOWER($1)
+          LIMIT
+            1
+          ;`,
+    values: [email],
+  });
+
+  if (userSelectResult.rowCount === 0) {
+    throw new NotFoundError({
+      message: "User not found",
+      action: "Check if the email is correct.",
     });
   }
 
@@ -164,6 +194,7 @@ async function runUpdateQuery(userWithNewValues) {
 const user = {
   create,
   findOneByUsername,
+  findOneByEmail,
   update,
 };
 

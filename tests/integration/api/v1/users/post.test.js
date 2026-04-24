@@ -2,6 +2,7 @@ import orchestrator from "tests/orchestrator";
 import user from "models/user.js";
 import password from "models/password.js";
 import { version as uuidVersion } from "uuid";
+import { UnauthorizedError } from "infra/errors.js";
 
 let response;
 let response1;
@@ -131,11 +132,9 @@ describe("POST /api/v1/users", () => {
 
     describe("with invalid password", () => {
       test("should return 'false' from password compare", async () => {
-        const isPasswordValid = await password.compare(
-          "invalidpassword",
-          userFromDatabase.password,
-        );
-        expect(isPasswordValid).toBe(false);
+        await expect(
+          password.compare("invalidpassword", userFromDatabase.password),
+        ).rejects.toThrow(UnauthorizedError);
       });
     });
   });
