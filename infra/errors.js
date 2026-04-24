@@ -2,7 +2,8 @@ class InternalServerError extends Error {
   constructor({ cause, statusCode }) {
     super("An unexpected error occurred on server side.", { cause });
     this.name = "InternalServerError";
-    this.action = "Cry harder later.";
+    this.action =
+      "Contact support via email <kelvin@deploya.dev.br> if the problem persists.";
     this.statusCode = statusCode || 500;
   }
 
@@ -71,6 +72,24 @@ class ValidationError extends Error {
   }
 }
 
+class UnauthorizedError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "Unauthorized.", { cause });
+    this.name = "UnauthorizedError";
+    this.action = action || "Check your credentials and try again.";
+    this.statusCode = 401;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      status_code: this.statusCode,
+    };
+  }
+}
+
 class NotFoundError extends Error {
   constructor({ cause, message, action }) {
     super(message || "Resource not found.", { cause });
@@ -94,5 +113,6 @@ export {
   MethodNotAllowedError,
   ServiceError,
   ValidationError,
+  UnauthorizedError,
   NotFoundError,
 };

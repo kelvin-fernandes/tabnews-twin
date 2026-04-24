@@ -1,6 +1,7 @@
 import orchestrator from "tests/orchestrator";
 import user from "models/user.js";
 import password from "models/password.js";
+import { UnauthorizedError } from "infra/errors.js";
 
 let user_with_new_password;
 let patchResponse;
@@ -215,15 +216,14 @@ describe("PATCH /api/v1/users/[username]", () => {
         expect(isPasswordValid).toBe(true);
       });
 
-      test("should return 'false' from old password comparison", async () => {
+      test("should return 'UnauthorizedError' from old password comparison", async () => {
         userFromDatabase = await user.findOneByUsername(
           user_with_new_password.username,
         );
-        const isPasswordValid = await password.compare(
-          "very_unique_password",
-          userFromDatabase.password,
-        );
-        expect(isPasswordValid).toBe(false);
+
+        await expect(
+          password.compare("very_unique_password", userFromDatabase.password),
+        ).rejects.toThrow(UnauthorizedError);
       });
     });
   });
