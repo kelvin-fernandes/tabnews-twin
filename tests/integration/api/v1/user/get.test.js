@@ -209,6 +209,14 @@ describe("GET /api/v1/user", () => {
           httpOnly: true,
         });
       });
+
+      test("should return a Cache-Control header with no-store directive", async () => {
+        const cacheControlHeader =
+          getResponseNearToExpireSession.headers.get("Cache-Control");
+        expect(cacheControlHeader).toBe(
+          "no-store, no-cache, max-age=0, must-revalidate",
+        );
+      });
     });
   });
 });
