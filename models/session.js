@@ -1,13 +1,29 @@
 import crypto from "crypto";
 import database from "infra/database.js";
+import { UnauthorizedError } from "infra/errors.js";
 
 const EXPIRATION_IN_MILISECONDS = 60 * 60 * 24 * 30 * 1000; // 30 days
 
-async function create(user) {
+async function create(userId) {
   const token = crypto.randomBytes(48).toString("hex");
-  const expires_at = new Date(Date.now() + EXPIRATION_IN_MILISECONDS);
-  const newSession = await runInsertQuery(token, user.id, expires_at);
+  const expiresAt = getExpirationDate();
+  const newSession = await runInsertQuery(token, userId, expiresAt);
   return newSession;
+}
+
+async function findValidSessionToken(token) {
+  const session = await runSelectQuery(token);
+  return session;
+}
+
+async function renew(sessionId) {
+  const expiresAt = getExpirationDate();
+  const renewedSession = await runUpdateQuery(sessionId, expiresAt);
+  return renewedSession;
+}
+
+function getExpirationDate() {
+  return new Date(Date.now() + EXPIRATION_IN_MILISECONDS);
 }
 
 async function runInsertQuery(token, userId, expiresAt) {
@@ -24,8 +40,54 @@ async function runInsertQuery(token, userId, expiresAt) {
   return result.rows[0];
 }
 
+async function runSelectQuery(token) {
+  const result = await database.query({
+    text: `
+      SELECT
+        *
+      FROM
+        sessions
+      WHERE
+        token = $1
+        AND expires_at > NOW()
+      LIMIT
+        1`,
+    values: [token],
+  });
+
+  if (result.rowCount === 0) {
+    throw new UnauthorizedError({
+      message: "Invalid session token",
+      action: "Check if the session token is correct.",
+    });
+  }
+
+  return result.rows[0];
+}
+
+async function runUpdateQuery(sessionId, expiresAt) {
+  const result = await database.query({
+    text: `
+      UPDATE 
+        sessions 
+      SET 
+        expires_at = $2,
+        updated_at = NOW()
+      WHERE 
+        id = $1
+      RETURNING 
+        *
+    ;`,
+    values: [sessionId, expiresAt],
+  });
+
+  return result.rows[0];
+}
+
 const session = {
   create,
+  findValidSessionToken,
+  renew,
   EXPIRATION_IN_MILISECONDS,
 };
 

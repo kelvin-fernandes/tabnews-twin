@@ -23,6 +23,12 @@ async function findOneByEmail(email) {
   return userResult;
 }
 
+async function findOneById(Id) {
+  const userResult = await runSelectQueryWithId(Id);
+
+  return userResult;
+}
+
 async function update(username, userInputValues) {
   const currentUser = await runSelectQueryWithUsername(username);
 
@@ -159,6 +165,30 @@ async function runSelectQueryWithEmail(email) {
   return userSelectResult.rows[0];
 }
 
+async function runSelectQueryWithId(id) {
+  const userSelectResult = await database.query({
+    text: `SELECT
+            *
+          FROM
+            users
+          WHERE
+            id = $1
+          LIMIT
+            1
+          ;`,
+    values: [id],
+  });
+
+  if (userSelectResult.rowCount === 0) {
+    throw new NotFoundError({
+      message: "User not found",
+      action: "Check if the Id is correct.",
+    });
+  }
+
+  return userSelectResult.rows[0];
+}
+
 async function runUpdateQuery(userWithNewValues) {
   const userUpdateResult = await database.query({
     text: `UPDATE
@@ -195,6 +225,7 @@ const user = {
   create,
   findOneByUsername,
   findOneByEmail,
+  findOneById,
   update,
 };
 
