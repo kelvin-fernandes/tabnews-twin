@@ -98,8 +98,19 @@ describe("POST /api/v1/sessions", () => {
       });
 
       test("should return Set-Cookie header without session_id", async () => {
-        const setCookieHeader = response1.headers.get("Set-Cookie");
-        expect(setCookieHeader).toBeNull();
+        const cookie = setCookieParser.parse(
+          response1.headers.get("Set-Cookie"),
+          { map: true },
+        );
+        expect(cookie.session_id).toBeDefined();
+        expect(cookie.session_id).toEqual({
+          name: "session_id",
+          value: "invalid",
+          path: "/",
+          maxAge: -1,
+          sameSite: "Strict",
+          httpOnly: true,
+        });
       });
 
       test("should return the expected error response data", async () => {
@@ -124,8 +135,19 @@ describe("POST /api/v1/sessions", () => {
       });
 
       test("should return Set-Cookie header without session_id", async () => {
-        const setCookieHeader = response2.headers.get("Set-Cookie");
-        expect(setCookieHeader).toBeNull();
+        const cookie = setCookieParser.parse(
+          response2.headers.get("Set-Cookie"),
+          { map: true },
+        );
+        expect(cookie.session_id).toBeDefined();
+        expect(cookie.session_id).toEqual({
+          name: "session_id",
+          value: "invalid",
+          path: "/",
+          maxAge: -1,
+          sameSite: "Strict",
+          httpOnly: true,
+        });
       });
 
       test("should return the expected error response data", async () => {
@@ -150,8 +172,19 @@ describe("POST /api/v1/sessions", () => {
       });
 
       test("should return Set-Cookie header without session_id", async () => {
-        const setCookieHeader = response3.headers.get("Set-Cookie");
-        expect(setCookieHeader).toBeNull();
+        const cookie = setCookieParser.parse(
+          response3.headers.get("Set-Cookie"),
+          { map: true },
+        );
+        expect(cookie.session_id).toBeDefined();
+        expect(cookie.session_id).toEqual({
+          name: "session_id",
+          value: "invalid",
+          path: "/",
+          maxAge: -1,
+          sameSite: "Strict",
+          httpOnly: true,
+        });
       });
 
       test("should return the expected error response data", async () => {

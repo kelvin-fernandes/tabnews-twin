@@ -3,6 +3,7 @@ import database from "infra/database.js";
 import { UnauthorizedError } from "infra/errors.js";
 
 const EXPIRATION_IN_MILISECONDS = 60 * 60 * 24 * 30 * 1000; // 30 days
+const YEAR_IN_MILISECONDS = 365 * 24 * 60 * 60 * 1000;
 
 async function create(userId) {
   const token = crypto.randomBytes(48).toString("hex");
@@ -20,6 +21,11 @@ async function renew(sessionId) {
   const expiresAt = getExpirationDate();
   const renewedSession = await runUpdateQuery(sessionId, expiresAt);
   return renewedSession;
+}
+
+async function invalidate(sessionId) {
+  const expiresAt = new Date(Date.now() - session.YEAR_IN_MILISECONDS); // 1 year ago
+  await runUpdateQuery(sessionId, expiresAt);
 }
 
 function getExpirationDate() {
@@ -88,7 +94,9 @@ const session = {
   create,
   findValidSessionToken,
   renew,
+  invalidate,
   EXPIRATION_IN_MILISECONDS,
+  YEAR_IN_MILISECONDS,
 };
 
 export default session;

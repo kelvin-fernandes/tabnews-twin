@@ -14,6 +14,10 @@ function onNoMatchHandler(request, response) {
 }
 
 function onErrorHandler(error, request, response) {
+  if (error instanceof UnauthorizedError) {
+    controller.clearSessionCookie(response);
+  }
+
   if (
     error instanceof ValidationError ||
     error instanceof NotFoundError ||
@@ -41,6 +45,18 @@ function setSessionCookie(response, sessionToken) {
   response.setHeader("Set-Cookie", setCookie);
 }
 
+function clearSessionCookie(response) {
+  const setCookie = cookie.serialize("session_id", "invalid", {
+    path: "/",
+    maxAge: -1,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    httpOnly: true,
+  });
+
+  response.setHeader("Set-Cookie", setCookie);
+}
+
 function setNoStoreCacheControl(response) {
   response.setHeader(
     "Cache-Control",
@@ -54,6 +70,7 @@ const controller = {
     onError: onErrorHandler,
   },
   setSessionCookie,
+  clearSessionCookie,
   setNoStoreCacheControl,
 };
 
