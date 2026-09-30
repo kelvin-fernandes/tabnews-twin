@@ -55,7 +55,7 @@ describe("GET /api/v1/user", () => {
           username: userWithValidSession.username,
           email: userWithValidSession.email,
           password: userWithValidSession.password,
-          features: [],
+          features: ["read:activation_token"],
           created_at: userWithValidSession.created_at.toISOString(),
           updated_at: userWithValidSession.updated_at.toISOString(),
         });
@@ -175,7 +175,7 @@ describe("GET /api/v1/user", () => {
           username: userWithNearToExpireSession.username,
           email: userWithNearToExpireSession.email,
           password: userWithNearToExpireSession.password,
-          features: [],
+          features: ["read:activation_token"],
           created_at: userWithNearToExpireSession.created_at.toISOString(),
           updated_at: userWithNearToExpireSession.updated_at.toISOString(),
         });
