@@ -1,4 +1,5 @@
 import orchestrator from "tests/orchestrator";
+import activation from "models/activation.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -22,12 +23,13 @@ async function registerUser() {
 }
 
 describe("Use case: Registration flow (happy path)", () => {
+  let user;
   test("should register a new user", async () => {
     const response = await registerUser();
 
     expect(response.status).toBe(201);
 
-    const user = await response.json();
+    user = await response.json();
 
     expect(user).toEqual({
       id: user.id,
@@ -41,9 +43,17 @@ describe("Use case: Registration flow (happy path)", () => {
   });
 
   test("should get a confirmation email", async () => {
-    // const emails = await orchestrator.getEmails();
-    // expect(emails.length).toBe(1);
-    // const email = emails[0];
+    const lastEmail = await orchestrator.getLastEmail();
+
+    const activationToken = await activation.findOneByUserId(user.id);
+
+    expect(lastEmail.sender).toBe("<kelvin@deploya.dev.br>");
+    expect(lastEmail.recipients[0]).toBe(
+      "<registration.flow.user@example.com>",
+    );
+    expect(lastEmail.subject).toBe("Activate your account at Deploya");
+    expect(lastEmail.text).toContain("registration-flow-user");
+    expect(lastEmail.text).toContain(activationToken.id);
   });
 
   test("should activate the user account", async () => {});
