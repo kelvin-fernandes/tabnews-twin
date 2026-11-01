@@ -1,5 +1,5 @@
 import orchestrator from "tests/orchestrator";
-import activation from "models/activation.js";
+import webserver from "infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -45,15 +45,27 @@ describe("Use case: Registration flow (happy path)", () => {
   test("should get a confirmation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
 
-    const activationToken = await activation.findOneByUserId(user.id);
-
     expect(lastEmail.sender).toBe("<kelvin@deploya.dev.br>");
     expect(lastEmail.recipients[0]).toBe(
       "<registration.flow.user@example.com>",
     );
     expect(lastEmail.subject).toBe("Activate your account at Deploya");
     expect(lastEmail.text).toContain("registration-flow-user");
-    expect(lastEmail.text).toContain(activationToken.id);
+
+    const tokenFromLastEmail = orchestrator.extractTokenFromEmail(
+      lastEmail.text,
+    );
+
+    expect(lastEmail.text).toContain(
+      `${webserver.getOrigin()}/register/activate?token=${tokenFromLastEmail}`,
+    );
+
+    const activationToken =
+      await orchestrator.findValidActivationToken(tokenFromLastEmail);
+
+    expect(activationToken).toBeDefined();
+    expect(activationToken.user_id).toBe(user.id);
+    expect(activationToken.used_at).toBeNull();
   });
 
   test("should activate the user account", async () => {});

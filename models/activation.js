@@ -20,8 +20,8 @@ The Deploya Team`,
   });
 }
 
-async function findOneByUserId(userId) {
-  const activationToken = await runSelectQuery(userId);
+async function findOneByToken(token) {
+  const activationToken = await runSelectQuery(token);
   return activationToken;
 }
 
@@ -50,18 +50,22 @@ async function runInsertQuery(userInputData) {
   return results.rows[0];
 }
 
-async function runSelectQuery(userId) {
+async function runSelectQuery(token) {
   const results = await database.query({
     text: `SELECT
             *
           FROM
             user_activation_tokens
           WHERE
-            user_id = $1
+            id = $1
+            AND
+            used_at IS NULL
+            AND
+            expires_at > NOW()
           LIMIT
             1
           ;`,
-    values: [userId],
+    values: [token],
   });
 
   return results.rows[0];
@@ -69,7 +73,7 @@ async function runSelectQuery(userId) {
 
 const activation = {
   sendEmailToUser,
-  findOneByUserId,
+  findOneByToken,
   create,
 };
 

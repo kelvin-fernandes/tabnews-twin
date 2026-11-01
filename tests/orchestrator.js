@@ -4,6 +4,7 @@ import database from "infra/database.js";
 import migrator from "models/migrator.js";
 import user from "models/user.js";
 import session from "models/session.js";
+import activation from "models/activation.js";
 
 const EMAIL_HTTP_URL = `http://${process.env.EMAIL_SMTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -90,6 +91,22 @@ async function getLastEmail() {
   return lastEmailResponse;
 }
 
+function extractTokenFromEmail(emailText) {
+  const tokenMatch = emailText.match(
+    /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/,
+  );
+
+  if (!tokenMatch) {
+    return null;
+  }
+
+  return tokenMatch[1];
+}
+
+async function findValidActivationToken(token) {
+  return await activation.findOneByToken(token);
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
@@ -98,6 +115,8 @@ const orchestrator = {
   createSession,
   clearEmailBox,
   getLastEmail,
+  extractTokenFromEmail,
+  findValidActivationToken,
 };
 
 export default orchestrator;
