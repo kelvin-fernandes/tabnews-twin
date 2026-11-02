@@ -1,5 +1,6 @@
 import orchestrator from "tests/orchestrator";
 import webserver from "infra/webserver.js";
+import user from "models/user.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -22,23 +23,31 @@ async function registerUser() {
   });
 }
 
+async function activateUser(tokenId) {
+  return await fetch(`http://localhost:3000/api/v1/activations/${tokenId}`, {
+    method: "PATCH",
+  });
+}
+
 describe("Use case: Registration flow (happy path)", () => {
-  let user;
+  let userCreated;
+  let tokenIdFromEmail;
+
   test("should register a new user", async () => {
     const response = await registerUser();
 
     expect(response.status).toBe(201);
 
-    user = await response.json();
+    userCreated = await response.json();
 
-    expect(user).toEqual({
-      id: user.id,
+    expect(userCreated).toEqual({
+      id: userCreated.id,
       username: "registration-flow-user",
       email: "registration.flow.user@example.com",
-      password: user.password,
+      password: userCreated.password,
       features: ["read:activation_token"],
-      created_at: user.created_at,
-      updated_at: user.updated_at,
+      created_at: userCreated.created_at,
+      updated_at: userCreated.updated_at,
     });
   });
 
@@ -52,25 +61,37 @@ describe("Use case: Registration flow (happy path)", () => {
     expect(lastEmail.subject).toBe("Activate your account at Deploya");
     expect(lastEmail.text).toContain("registration-flow-user");
 
-    const tokenFromLastEmail = orchestrator.extractTokenFromEmail(
-      lastEmail.text,
-    );
+    tokenIdFromEmail = orchestrator.extractTokenIdFromEmail(lastEmail.text);
 
     expect(lastEmail.text).toContain(
-      `${webserver.getOrigin()}/register/activate?token=${tokenFromLastEmail}`,
+      `${webserver.getOrigin()}/register/activate?token=${tokenIdFromEmail}`,
     );
 
     const activationToken =
-      await orchestrator.findValidActivationToken(tokenFromLastEmail);
+      await orchestrator.findValidActivationToken(tokenIdFromEmail);
 
     expect(activationToken).toBeDefined();
-    expect(activationToken.user_id).toBe(user.id);
+    expect(activationToken.user_id).toBe(userCreated.id);
     expect(activationToken.used_at).toBeNull();
   });
 
-  test("should activate the user account", async () => {});
+  test("should activate the user account", async () => {
+    const response = await activateUser(tokenIdFromEmail);
 
-  test("should user log in", async () => {});
+    expect(response.status).toBe(200);
 
-  test("should user get account info", async () => {});
+    const responseBody = await response.json();
+
+    expect(Date.parse(responseBody.used_at)).not.toBeNaN();
+
+    const userActivationToken = await user.findOneByUsername(
+      userCreated.username,
+    );
+
+    expect(userActivationToken.features).toEqual(["create:session"]);
+  });
+
+  // test("should user log in", async () => {});
+
+  // test("should user get account info", async () => {});
 });

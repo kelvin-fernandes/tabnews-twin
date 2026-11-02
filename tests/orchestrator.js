@@ -91,7 +91,7 @@ async function getLastEmail() {
   return lastEmailResponse;
 }
 
-function extractTokenFromEmail(emailText) {
+function extractTokenIdFromEmail(emailText) {
   const tokenMatch = emailText.match(
     /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/,
   );
@@ -115,7 +115,7 @@ const orchestrator = {
   createSession,
   clearEmailBox,
   getLastEmail,
-  extractTokenFromEmail,
+  extractTokenIdFromEmail,
   findValidActivationToken,
 };
 

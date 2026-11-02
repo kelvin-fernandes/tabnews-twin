@@ -1,6 +1,7 @@
 import email from "infra/email.js";
 import database from "infra/database.js";
 import webserver from "infra/webserver.js";
+import user from "models/user.js";
 
 const EXPIRATION_IN_MILISECONDS = 60 * 15 * 1000; // 15 minutes
 
@@ -33,6 +34,18 @@ async function create(userId) {
 
 function getExpirationDate() {
   return new Date(Date.now() + EXPIRATION_IN_MILISECONDS);
+}
+
+async function use(activationToken) {
+  const usedActivationToken = await runUpdateQuery(activationToken);
+  return usedActivationToken;
+}
+
+async function activateUserByUserId(userId) {
+  const userWithNewFeatures = await user.setFeatures(userId, [
+    "create:session",
+  ]);
+  return userWithNewFeatures;
 }
 
 async function runInsertQuery(userInputData) {
@@ -71,10 +84,30 @@ async function runSelectQuery(token) {
   return results.rows[0];
 }
 
+async function runUpdateQuery(activationToken) {
+  const results = await database.query({
+    text: `UPDATE
+            user_activation_tokens
+          SET
+            used_at = timezone('UTC', NOW()),
+            updated_at = timezone('UTC', NOW())
+          WHERE
+            id = $1
+          RETURNING
+            *
+          ;`,
+    values: [activationToken.id],
+  });
+
+  return results.rows[0];
+}
+
 const activation = {
   sendEmailToUser,
   findOneByToken,
   create,
+  use,
+  activateUserByUserId,
 };
 
 export default activation;
