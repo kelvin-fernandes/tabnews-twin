@@ -6,6 +6,7 @@ async function create(userInputData) {
   await validateUniqueUsername(userInputData.username);
   await validateUniqueEmail(userInputData.email);
   await hashPasswordInObject(userInputData);
+  injectDefaultFeatures(userInputData);
   const newUserResult = await runInsertQuery(userInputData);
 
   return newUserResult.rows[0];
@@ -54,6 +55,29 @@ async function update(username, userInputValues) {
   return userUpdateResult;
 }
 
+async function setFeatures(userId, features) {
+  const userUpdateResult = await runUpdateQuery(userId, features);
+  return userUpdateResult;
+
+  async function runUpdateQuery(userId, features) {
+    const userUpdateResult = await database.query({
+      text: `UPDATE
+              users
+            SET
+              features = $2,
+              updated_at = timezone('utc', now())
+            WHERE
+              id = $1
+            RETURNING
+              *
+            ;`,
+      values: [userId, features],
+    });
+
+    return userUpdateResult.rows[0];
+  }
+}
+
 async function validateUniqueEmail(email) {
   const emailValidationResult = await database.query({
     text: `SELECT 
@@ -98,12 +122,16 @@ async function hashPasswordInObject(userInputData) {
   userInputData.password = await password.hash(userInputData.password);
 }
 
+function injectDefaultFeatures(userInputData) {
+  userInputData.features = ["read:activation_token"];
+}
+
 async function runInsertQuery(userInputData) {
   const userResult = await database.query({
     text: `INSERT INTO 
-            users (username, email, password) 
+            users (username, email, password, features) 
           VALUES 
-            ($1, $2, $3)
+            ($1, $2, $3, $4)
           RETURNING
             *
           ;`,
@@ -111,6 +139,7 @@ async function runInsertQuery(userInputData) {
       userInputData.username,
       userInputData.email,
       userInputData.password,
+      userInputData.features,
     ],
   });
 
@@ -227,6 +256,7 @@ const user = {
   findOneByEmail,
   findOneById,
   update,
+  setFeatures,
 };
 
 export default user;
